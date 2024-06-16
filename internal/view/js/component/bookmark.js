@@ -23,6 +23,9 @@ var template = `
 			{{hostnameURL}}
 		</a>
 		<template v-if="!editMode && menuVisible">
+			<a title="Mark as read" @click="markRead">
+				<i class="fas fa-fw fa-envelope-open"></i>
+			</a>
 			<a title="Edit bookmark" @click="editBookmark">
 				<i class="fas fa-fw fa-pencil-alt"></i>
 			</a>
@@ -123,6 +126,9 @@ export default {
 		},
 		updateBookmark() {
 			this.$emit("update", this.eventItem);
+		},
+		markRead() {
+			this.$emit("read", this.eventItem);
 		},
 		downloadebook() {
             const id = this.id;

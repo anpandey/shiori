@@ -64,6 +64,7 @@ var template = `
             @select="toggleSelection"
             @tag-clicked="bookmarkTagClicked"
             @edit="showDialogEdit"
+            @read="markRead"
             @delete="showDialogDelete"
             @generate-ebook="ebookGenerate"
             @update="showDialogUpdateCache">
@@ -433,6 +434,39 @@ export default {
 						})
 					});
 				}
+			});
+		},
+		markRead(item) {
+			if (typeof item !== "object") return;
+			var id = typeof item.id === "number" ? item.id : 0,
+				index = typeof item.index === "number" ? item.index : -1;
+			if (id < 1 || index < 0) return;
+			var request = {
+				ids: [id],
+				tags: [{name: "read"}],
+			};
+
+			this.dialog.loading = true;
+			fetch(new URL("api/bookmarks/tags", document.baseURI), {
+				method: "put",
+				body: JSON.stringify(request),
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: "Bearer " + localStorage.getItem("shiori-token"),
+				},
+			}).then((response) => {
+					if (!response.ok) throw response;
+					return response.json();
+			}).then((json) => {
+				this.dialog.loading = false;
+				json.forEach((book) => {
+					this.bookmarks.splice(item.index, 1, book);
+				});
+			}).catch((err) => {
+				this.dialog.loading = false;
+				this.getErrorMessage(err).then((msg) => {
+					this.showErrorDialog(msg);
+				});
 			});
 		},
 		showDialogEdit(item) {
